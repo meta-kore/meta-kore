@@ -20,6 +20,17 @@ An AI treasurer for savings circles, built on PayPal Invoicing and Payouts. Buil
 **[tab-shelf](https://github.com/meta-kore/tab-shelf)**<br>
 A Chrome extension that saves windows of tabs to a searchable shelf and never deletes anything unless asked.
 
+**FOUNDATIONS**
+
+**[simple_shell](https://github.com/meta-kore/simple_shell)**<br>
+A UNIX command interpreter in C: PATH lookup, fork and exec, interactive and piped modes, built-ins. Written with a teammate.
+
+**[monty](https://github.com/meta-kore/monty)**<br>
+An interpreter for stack and queue bytecode, written in C on a doubly linked list.
+
+**[sorting_algorithms](https://github.com/meta-kore/sorting_algorithms)** and **[binary_trees](https://github.com/meta-kore/binary_trees)**<br>
+Eleven sorts that print each step, and a ladder of tree structures from a single node up to AVL trees and heaps.
+
 ## 02 / Workbench
 
 Work in progress, and the experiments behind it.

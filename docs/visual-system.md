@@ -18,7 +18,7 @@ Contrast: paper on ink is about 17:1, ash on ink about 6:1 (passes AA for body t
 
 - Display and body: Space Grotesk (fallback Inter, Helvetica Neue, Arial).
 - Labels and metadata: IBM Plex Mono (fallback JetBrains Mono, Consolas, monospace).
-- GitHub renders README SVGs as images, so web fonts do not load inside them. Final header text must be **converted to outlines** so it looks identical everywhere. The generator keeps live text in the draft for editing only.
+- GitHub renders README SVGs as images, so web fonts do not load inside them. The generator therefore converts all header text to outlines (wordmark in Inter Bold, labels in JetBrains Mono; needs `pip install fonttools` and those fonts installed). Space Grotesk is not bundled, so Inter Bold stands in until it is added. Without fontTools the generator falls back to live text for editing only.
 
 ## Grid and line
 

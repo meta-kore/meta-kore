@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Generate META-KORE identity assets (stdlib only).
+"""Generate META-KORE identity assets.
+
+Text is converted to outlines when fontTools and the fonts below are available
+(pip install fonttools), so the SVG and GIF look identical everywhere. Without
+them it falls back to live <text>, which depends on installed fonts.
 
 Usage: python scripts/build-assets.py
 Writes assets/identity/header.svg and assets/identity/mark.svg.
@@ -15,6 +19,42 @@ MONO = "'IBM Plex Mono','JetBrains Mono',Consolas,monospace"
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "assets" / "identity"
+
+FONT_SANS = "/usr/share/fonts/opentype/inter/Inter-Bold.otf"
+FONT_MONO = "/usr/share/fonts/truetype/jetbrains-mono/JetBrainsMono-Regular.ttf"
+_fonts = {}
+
+
+def _font(fp):
+    if fp not in _fonts:
+        try:
+            from fontTools.ttLib import TTFont
+            _fonts[fp] = TTFont(fp) if Path(fp).exists() else None
+        except ImportError:
+            _fonts[fp] = None
+    return _fonts[fp]
+
+
+def text_el(txt, x, y, size, fill, fontfile, family, spacing=0.0, anchor="start", weight=None):
+    """Outlined text as one <path>; live <text> fallback if the font is unavailable."""
+    f = _font(fontfile)
+    if f is None:
+        w = f' font-weight="{weight}"' if weight else ""
+        a = f' text-anchor="{anchor}"' if anchor != "start" else ""
+        return (f'<text x="{x}" y="{y}"{a} fill="{fill}" font-family="{family}" '
+                f'font-size="{size}"{w} letter-spacing="{spacing}">{txt}</text>')
+    from fontTools.pens.svgPathPen import SVGPathPen
+    from fontTools.pens.transformPen import TransformPen
+    gs, cmap, hmtx = f.getGlyphSet(), f.getBestCmap(), f["hmtx"]
+    k = size / f["head"].unitsPerEm
+    names = [cmap[ord(c)] for c in txt]
+    total = sum(hmtx[n][0] * k + spacing for n in names) - spacing
+    cx = x - (total if anchor == "end" else 0)
+    pen = SVGPathPen(gs, ntos=lambda v: f"{v:.1f}")
+    for n in names:
+        gs[n].draw(TransformPen(pen, (k, 0, 0, -k, cx, y)))
+        cx += hmtx[n][0] * k + spacing
+    return f'<path fill="{fill}" d="{pen.getCommands()}"/>'
 
 
 def path(points):
@@ -64,16 +104,16 @@ def header(phase=0.0):
         l = 12 if (x - M) % 160 == 0 else 6
         o.append(f'<line x1="{x}" y1="{H-M}" x2="{x}" y2="{H-M-l}" stroke="{PAPER}" stroke-width="1"/>')
 
-    # wordmark (convert to outlines before publishing)
-    o.append(f'<text x="{M}" y="190" fill="{PAPER}" font-family="{SANS}" font-size="140" '
-             f'font-weight="700" letter-spacing="-4">META-KORE</text>')
+    # wordmark (outlined)
+    o.append(text_el("META-KORE", M, 190, 140, PAPER, FONT_SANS, SANS, -4, weight=700))
 
     # annotations
-    lab = f'font-family="{MONO}" font-size="20" letter-spacing="2.4" fill="{ASH}"'
-    o.append(f'<text x="{M}" y="{M+4}" {lab}>00 / INDEX</text>')
-    o.append(f'<text x="{W-M}" y="{M+4}" text-anchor="end" {lab}>SOFTWARE · INTELLIGENCE · SYSTEMS · EXPERIMENTS</text>')
-    o.append(f'<text x="{M}" y="{H-M+30}" {lab}>PHASE {phase:.2f} RAD</text>')
-    o.append(f'<text x="{W-M}" y="{H-M+30}" text-anchor="end" {lab}>A WORKBENCH IN PUBLIC</text>')
+    def lab(t, x, y, anchor="start"):
+        return text_el(t, x, y, 20, ASH, FONT_MONO, MONO, 2.4, anchor)
+    o.append(lab("00 / INDEX", M, M + 4))
+    o.append(lab("SOFTWARE · INTELLIGENCE · SYSTEMS · EXPERIMENTS", W - M, M + 4, "end"))
+    o.append(lab(f"PHASE {phase:.2f} RAD", M, H - M + 30))
+    o.append(lab("A WORKBENCH IN PUBLIC", W - M, H - M + 30, "end"))
     o.append("</svg>")
     return "\n".join(o)
 

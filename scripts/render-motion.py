@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Render the header loop to assets/motion/header-loop.gif.
-Needs ImageMagick (magick) and ffmpeg on PATH. Frames go to a temp dir.
+Needs ffmpeg, plus either ImageMagick 7 (magick) or Node with Playwright (Chromium) on PATH. Frames go to a temp dir.
 Usage: python scripts/render-motion.py [frames] [width]
 """
-import math, subprocess, sys, tempfile, importlib.util
+import math, shutil, subprocess, sys, tempfile, importlib.util
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -16,12 +16,18 @@ out = ROOT / "assets" / "motion"; out.mkdir(parents=True, exist_ok=True)
 
 with tempfile.TemporaryDirectory() as d:
     d = Path(d)
+    svgs = []
     for i in range(frames):
         phase = 2 * math.pi * i / frames  # full cycle -> seamless loop
         svg = d / f"f{i:03d}.svg"
         svg.write_text(ba.header(phase), encoding="utf-8")
-        subprocess.run(["magick", "-background", "none", "-density", "96", str(svg),
-                        "-resize", f"{width}x", str(d / f"f{i:03d}.png")], check=True)
+        svgs.append(str(svg))
+    if shutil.which("magick"):
+        for svg in svgs:
+            subprocess.run(["magick", "-background", "none", "-density", "96", svg,
+                            "-resize", f"{width}x", svg[:-4] + ".png"], check=True)
+    else:
+        subprocess.run(["node", str(ROOT / "scripts" / "rasterize.js"), str(width), str(d), *svgs], check=True)
     pal = d / "pal.png"
     subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", "12", "-i", str(d / "f%03d.png"),
                     "-vf", "palettegen=max_colors=24", str(pal)], check=True)

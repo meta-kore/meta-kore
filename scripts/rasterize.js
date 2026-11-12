@@ -5,7 +5,9 @@ const path = require('path');
 const fs = require('fs');
 (async () => {
   const [width, outDir, ...files] = process.argv.slice(2);
-  const w = +width, h = Math.round(w * 500 / 1600);
+  const w = +width;
+  const vb = fs.readFileSync(files[0], 'utf8').match(/viewBox="0 0 ([\d.]+) ([\d.]+)"/);
+  const h = Math.round(w * (vb ? vb[2] / vb[1] : 500 / 1600));
   const browser = await chromium.launch();
   const page = await browser.newPage({ viewport: { width: w, height: h } });
   for (const f of files) {

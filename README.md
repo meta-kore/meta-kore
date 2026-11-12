@@ -22,8 +22,15 @@ A Chrome extension that saves windows of tabs to a searchable shelf and never de
 
 ## 02 / Workbench
 
-<!-- TODO: current experiments, e.g. this profile's generative header: scripts/build-assets.py -->
-Generative graphics for this profile are built from source in [`scripts/`](scripts/).
+Work in progress, and the experiments behind it.
+
+**This profile**<br>
+The animated header is generated from source: plotted waveforms drifting in phase, rendered to a seamless loop. See [`scripts/`](scripts/).
+
+**Daily Haiku** *(private, in development)*<br>
+A mobile writing practice: one prompt a day, a live 5-7-5 syllable counter, and a short note on the words behind each prompt.
+
+<sub>More of the workbench lives in private repositories.</sub>
 
 ## 03 / Elsewhere
 

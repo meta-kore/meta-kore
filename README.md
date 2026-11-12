@@ -7,11 +7,18 @@ I build software, intelligent systems and computational experiments, with an int
 
 ## 01 / Selected work
 
-| | Project | What it does |
-|---|---|---|
-| **INTELLIGENCE** | [allowance](https://github.com/meta-kore/allowance) | A PayPal spending wallet with rules for AI agents: each purchase is paid, held for approval, or blocked. Built for the PayPal AI Hackathon 2026. |
-| **INTELLIGENCE** | [kitty](https://github.com/meta-kore/kitty) | An AI treasurer for savings circles, built on PayPal Invoicing and Payouts. Built for the PayPal AI Hackathon 2026. |
-| **SYSTEMS** | [tab-shelf](https://github.com/meta-kore/tab-shelf) | A Chrome extension that saves windows of tabs to a searchable shelf and never deletes anything unless asked. |
+**INTELLIGENCE**
+
+**[allowance](https://github.com/meta-kore/allowance)**<br>
+A PayPal spending wallet with rules for AI agents: each purchase is paid, held for approval, or blocked. Built for the PayPal AI Hackathon 2026.
+
+**[kitty](https://github.com/meta-kore/kitty)**<br>
+An AI treasurer for savings circles, built on PayPal Invoicing and Payouts. Built for the PayPal AI Hackathon 2026.
+
+**SYSTEMS**
+
+**[tab-shelf](https://github.com/meta-kore/tab-shelf)**<br>
+A Chrome extension that saves windows of tabs to a searchable shelf and never deletes anything unless asked.
 
 ## 02 / Workbench
 

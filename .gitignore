@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+# internal working notes, not for the public profile repo
+repository-audit.md
+meta-kore-github-identity-implementation-plan.md
+CLAUDE.md

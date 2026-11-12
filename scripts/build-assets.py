@@ -49,7 +49,7 @@ def text_el(txt, x, y, size, fill, fontfile, family, spacing=0.0, anchor="start"
     k = size / f["head"].unitsPerEm
     names = [cmap[ord(c)] for c in txt]
     total = sum(hmtx[n][0] * k + spacing for n in names) - spacing
-    cx = x - (total if anchor == "end" else 0)
+    cx = x - (total if anchor == "end" else total / 2 if anchor == "middle" else 0)
     pen = SVGPathPen(gs, ntos=lambda v: f"{v:.1f}")
     for n in names:
         gs[n].draw(TransformPen(pen, (k, 0, 0, -k, cx, y)))
@@ -129,8 +129,17 @@ def mark():
     return k
 
 
+def social(phase=1.2):
+    """1280x640 social preview card: the header artwork centred on a taller ink field."""
+    inner = header(phase)
+    inner = inner.replace(f' width="{W}" height="{H}"', "", 1).replace("<svg ", f'<svg x="0" y="150" width="{W}" height="{H}" ', 1)
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 800" width="1600" height="800">'
+            f'<rect width="1600" height="800" fill="{INK}"/>{inner}</svg>')
+
+
 if __name__ == "__main__":
     OUT.mkdir(parents=True, exist_ok=True)
     (OUT / "header.svg").write_text(header(0.0), encoding="utf-8")
     (OUT / "mark.svg").write_text(mark(), encoding="utf-8")
+    (OUT / "social.svg").write_text(social(), encoding="utf-8")
     print("wrote", OUT / "header.svg", OUT / "mark.svg")

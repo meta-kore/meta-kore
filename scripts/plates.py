@@ -130,7 +130,7 @@ def allowance(u):
 # ---------------------------------------------------------------- 02 kitty
 def kitty(u):
     o = []
-    cx, cy, R, N = 800, 205, 135, 8
+    cx, cy, R, N = 800, 205, 135, 10
     pos = [(cx + R * math.cos(-math.pi / 2 + 2 * math.pi * i / N),
             cy + R * math.sin(-math.pi / 2 + 2 * math.pi * i / N)) for i in range(N)]
     h = int(u * N) % N
@@ -280,11 +280,13 @@ def _quick_states(vals):
         piv, i = a[hi], lo
         for j in range(lo, hi):
             if a[j] < piv:
-                a[i], a[j] = a[j], a[i]
-                states.append((list(a), (i, j)))
+                if i != j:  # the repo's quick_sort skips no-op swaps
+                    a[i], a[j] = a[j], a[i]
+                    states.append((list(a), (i, j)))
                 i += 1
-        a[i], a[hi] = a[hi], a[i]
-        states.append((list(a), (i, hi)))
+        if i != hi and a[i] != a[hi]:
+            a[i], a[hi] = a[hi], a[i]
+            states.append((list(a), (i, hi)))
         qs(lo, i - 1)
         qs(i + 1, hi)
     qs(0, len(a) - 1)
@@ -322,7 +324,7 @@ def sorting(u):
         fill = PAPER if i in act else "none"
         o.append(rect(x, base - h, bw, h, PAPER if (i in act or done) else ASH, fill, 1.5 if i not in act else 2))
     o.append(line(x0 - 10, base + 2, x0 + 1300, base + 2, PAPER, 2))
-    return frame(6, "SORTING", "QUICK SORT", u, o)
+    return frame(6, "SORTING_ALGORITHMS", "QUICK SORT", u, o)
 
 
 # ---------------------------------------------------------------- 07 binary_trees
@@ -387,7 +389,7 @@ def binary_trees(u):
             o.append(circle(x, y, 36, ASH, "none", 1.5, a))
         o.append(fade(T(str(v), x, y + 11, 34, INK if lit else PAPER, "middle", 0), a))
     o.append(T("INSERT" if u < build else "IN-ORDER", 140, 84))
-    return frame(7, "BINARY_TREES", "TREES", u, o)
+    return frame(7, "BINARY_TREES", "BST", u, o)
 
 
 # ---------------------------------------------------------------- 08 daily haiku (private)
@@ -408,7 +410,7 @@ def haiku(u):
             o.append(circle(x, y, 17, ASH if not filled else PAPER, PAPER if filled else "none", 2, master if filled else 1))
             c += 1
     o.append(T("17 SYLLABLES", 1460, 340, anchor="end"))
-    return frame(8, "DAILY HAIKU", "PRIVATE", u, o)
+    return frame(8, "DAILY-HAIKU", "PRIVATE", u, o)
 
 
 # ---------------------------------------------------------------- 09 actionextract (private)
@@ -455,7 +457,7 @@ def actionextract(u):
 # name -> (frames, draw, file stem)
 PLATES = {
     "allowance": (36, allowance),
-    "kitty": (48, kitty),
+    "kitty": (60, kitty),
     "tab-shelf": (48, tab_shelf),
     "simple-shell": (40, simple_shell),
     "monty": (48, monty),

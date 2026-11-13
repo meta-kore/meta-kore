@@ -16,9 +16,9 @@ Contrast: paper on ink is about 17:1, ash on ink about 6:1 (passes AA for body t
 
 ## Type
 
-- Display and body: Space Grotesk (fallback Inter, Helvetica Neue, Arial).
+- Display and body: Space Grotesk (fallback Inter, Helvetica Neue, Arial). Used for the wordmark.
 - Labels and metadata: IBM Plex Mono (fallback JetBrains Mono, Consolas, monospace).
-- GitHub renders README SVGs as images, so web fonts do not load inside them. The generator therefore converts all header text to outlines (wordmark in Inter Bold, labels in JetBrains Mono; needs `pip install fonttools` and those fonts installed). Space Grotesk is not bundled, so Inter Bold stands in until it is added. Without fontTools the generator falls back to live text for editing only.
+- GitHub renders README SVGs as images, so web fonts do not load inside them. The generator therefore converts all text to outlines, using fonts vendored in `assets/fonts/` (Space Grotesk Bold for the wordmark, JetBrains Mono Regular for labels; both SIL OFL, licence texts alongside). It needs `pip install fonttools`. Without fontTools it falls back to live text, for editing only. IBM Plex Mono remains the spec's first-choice mono; JetBrains Mono is what the assets actually use.
 
 ## Grid and line
 
@@ -47,7 +47,7 @@ Each project gets one animated "plate": a figure of how it works, drawn in the s
 - Build: `python scripts/render-plates.py [name ...] [--width 1200]` writes `assets/plates/<name>.gif` (16 colours, 12 fps, about 55 to 155 KB each). `--stills DIR` writes PNG stills for review. Needs ffmpeg and Node with Playwright.
 - `assets/identity/social.png` (1280 x 640) is the repository social preview image; GitHub only accepts it as a manual upload in repository settings.
 
-Plates so far: 01 allowance, 02 kitty, 03 tab-shelf, 04 simple_shell, 05 monty, 06 sorting_algorithms, 07 binary_trees, 08 daily haiku, 09 actionextract.
+Plates so far: 01 allowance, 02 kitty, 03 tab-shelf, 04 simple_shell, 05 monty, 06 sorting_algorithms, 07 binary_trees, 08 daily-haiku, 09 actionextract.
 
 ## Open decisions
 

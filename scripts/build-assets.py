@@ -20,8 +20,9 @@ MONO = "'IBM Plex Mono','JetBrains Mono',Consolas,monospace"
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "assets" / "identity"
 
-FONT_SANS = "/usr/share/fonts/opentype/inter/Inter-Bold.otf"
-FONT_MONO = "/usr/share/fonts/truetype/jetbrains-mono/JetBrainsMono-Regular.ttf"
+# Vendored fonts (SIL Open Font License; licence texts sit beside them), so builds do not depend on system fonts.
+FONT_SANS = str(ROOT / "assets" / "fonts" / "SpaceGrotesk-Bold.woff")
+FONT_MONO = str(ROOT / "assets" / "fonts" / "JetBrainsMono-Regular.woff")
 _fonts = {}
 
 
@@ -105,7 +106,7 @@ def header(phase=0.0):
         o.append(f'<line x1="{x}" y1="{H-M}" x2="{x}" y2="{H-M-l}" stroke="{PAPER}" stroke-width="1"/>')
 
     # wordmark (outlined)
-    o.append(text_el("META-KORE", M, 190, 140, PAPER, FONT_SANS, SANS, -4, weight=700))
+    o.append(text_el("META-KORE", M, 192, 152, PAPER, FONT_SANS, SANS, -4, weight=700))
 
     # annotations
     def lab(t, x, y, anchor="start"):

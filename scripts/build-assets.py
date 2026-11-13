@@ -109,9 +109,9 @@ def header(phase=0.0):
 
     # annotations
     def lab(t, x, y, anchor="start"):
-        return text_el(t, x, y, 20, ASH, FONT_MONO, MONO, 2.4, anchor)
-    o.append(lab("00 / INDEX", M, M + 4))
-    o.append(lab("SOFTWARE · INTELLIGENCE · SYSTEMS · EXPERIMENTS", W - M, M + 4, "end"))
+        return text_el(t, x, y, 34, ASH, FONT_MONO, MONO, 2.0, anchor)
+    o.append(lab("00 / INDEX", M, M + 2))
+    o.append(lab("SOFTWARE · SYSTEMS · EXPERIMENTS", W - M, M + 2, "end"))
     o.append(lab(f"PHASE {phase:.2f} RAD", M, H - M + 30))
     o.append(lab("A WORKBENCH IN PUBLIC", W - M, H - M + 30, "end"))
     o.append("</svg>")

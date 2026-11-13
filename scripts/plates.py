@@ -15,11 +15,13 @@ ba = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(ba)
 
 INK, PAPER, ASH, RULE = ba.INK, ba.PAPER, ba.ASH, ba.RULE
-W, H, M = 1600, 400, 40
+W, H, M = 1600, 460, 40
+DY = 30  # content is drawn on a 1600x400 layout and shifted down for the larger corner labels
+LABEL = 42  # canvas px; about 9 px on a phone, 23 px at README width
 
 
 # ---------------------------------------------------------------- helpers
-def T(txt, x, y, size=20, fill=ASH, anchor="start", sp=2.4):
+def T(txt, x, y, size=LABEL, fill=ASH, anchor="start", sp=2.0):
     return ba.text_el(txt, x, y, size, fill, ba.FONT_MONO, ba.MONO, sp, anchor)
 
 
@@ -74,15 +76,17 @@ def frame(num, name, right, u, body):
          f'<rect width="{W}" height="{H}" fill="{INK}"/>']
     for x in range(M, W - M + 1, 80):
         o.append(line(x, M, x, H - M, RULE, 1))
-    for y in range(M, H - M + 1, 80):
+    for y in list(range(M, H - M, 80)) + [H - M]:
         o.append(line(M, y, W - M, y, RULE, 1))
     for x in range(M, W - M + 1, 40):
         ln = 10 if (x - M) % 160 == 0 else 5
         o.append(line(x, H - M, x, H - M - ln, PAPER, 1))
+    o.append(f'<g transform="translate(0,{DY})">')
     o += body
-    o.append(T(f"PLATE {num:02d} / {name}", M, 30))
-    o.append(T(right, W - M, 30, anchor="end"))
-    o.append(T(f"PHASE {u * 2 * math.pi:.2f} RAD", M, H - M + 30))
+    o.append('</g>')
+    o.append(T(f"PLATE {num:02d} / {name}", M, 42))
+    o.append(T(right, W - M, 42, anchor="end"))
+    o.append(T(f"PHASE {u * 2 * math.pi:.2f} RAD", M, H - 14))
     o.append("</svg>")
     return "\n".join(o)
 
@@ -98,8 +102,8 @@ def allowance(u):
         o.append(f'<path d="M{gx},{y0} C900,{y0} 980,{ly} 1180,{ly}" fill="none" stroke="{ASH}" '
                  f'stroke-width="1.5"' + (f' stroke-dasharray="{d}"' if d else "") + "/>")
     o.append(line(gx, 140, gx, 270, PAPER, 4))
-    o.append(T("RULES", gx, 122, anchor="middle"))
-    o.append(T("REQUEST", 140, y0 - 22))
+    o.append(T("RULES", gx, 118, anchor="middle"))
+    o.append(T("REQUEST", 140, y0 - 24))
     # end markers
     o.append(circle(1180, 115, 9, PAPER, PAPER))
     o.append(line(1172, 193, 1172, 217, PAPER, 4))
@@ -107,7 +111,7 @@ def allowance(u):
     o.append(line(1170, 283, 1190, 307, PAPER, 3))
     o.append(line(1190, 283, 1170, 307, PAPER, 3))
     for ly, lab in lanes:
-        o.append(T(lab, 1230, ly + 7, 22, PAPER))
+        o.append(T(lab, 1226, ly + 14, 46, PAPER, "start", 1))
     for k in range(3):
         s = (u + k / 3) % 1
         if s < 0.5:
@@ -120,49 +124,49 @@ def allowance(u):
         if k == 1 and s > 0.85:  # hold: the owner decides
             o.append(circle(1180, 205, 14 + 10 * ease((s - 0.85) / 0.15), ASH, "none", 1.5,
                             1 - ease((s - 0.85) / 0.15)))
-    return frame(1, "ALLOWANCE", "PAY / HOLD / BLOCK", u, o)
+    return frame(1, "ALLOWANCE", "RULES", u, o)
 
 
 # ---------------------------------------------------------------- 02 kitty
 def kitty(u):
     o = []
-    cx, cy, R, N = 800, 205, 115, 8
+    cx, cy, R, N = 800, 205, 135, 8
     pos = [(cx + R * math.cos(-math.pi / 2 + 2 * math.pi * i / N),
             cy + R * math.sin(-math.pi / 2 + 2 * math.pi * i / N)) for i in range(N)]
     h = int(u * N) % N
     p = (u * N) % 1
     o.append(circle(cx, cy, R, RULE, "none", 1))
-    o.append(T("COLLECT", 140, 190))
-    o.append(line(140, 205, 660, 205, ASH, 1.5))
-    o.append(f'<polygon points="672,205 660,199 660,211" fill="{ASH}"/>')
-    o.append(T("PAY OUT", 1460, 190, anchor="end"))
-    o.append(line(940, 205, 1460, 205, ASH, 1.5))
+    o.append(T("COLLECT", 140, 180))
+    o.append(line(140, 205, 630, 205, ASH, 1.5))
+    o.append(f'<polygon points="642,205 630,199 630,211" fill="{ASH}"/>')
+    o.append(T("PAY OUT", 1460, 180, anchor="end"))
+    o.append(line(960, 205, 1460, 205, ASH, 1.5))
     o.append(f'<polygon points="1472,205 1460,199 1460,211" fill="{ASH}"/>')
     for i, (x, y) in enumerate(pos):
         got = (i == h and p > 0.88)
-        o.append(circle(x, y, 11, PAPER, PAPER if got else INK, 2))
+        o.append(circle(x, y, 15, PAPER, PAPER if got else INK, 2.5))
         if i == h:
-            o.append(circle(x, y, 19, ASH, "none", 1.5))
+            o.append(circle(x, y, 24, ASH, "none", 1.5))
     c = clamp(p / 0.55)
     for i, (x, y) in enumerate(pos):
         if i != h and p < 0.55:
             e = ease(c)
-            o.append(circle(lerp(x, cx, e), lerp(y, cy, e), 5, PAPER, PAPER, 1))
+            o.append(circle(lerp(x, cx, e), lerp(y, cy, e), 7, PAPER, PAPER, 1))
     if p < 0.55:
-        o.append(circle(cx, cy, 5 + 11 * ease(c), PAPER, "none", 2))
+        o.append(circle(cx, cy, 7 + 14 * ease(c), PAPER, "none", 2.5))
     elif p < 0.88:
         e = ease((p - 0.55) / 0.33)
-        o.append(circle(lerp(cx, pos[h][0], e), lerp(cy, pos[h][1], e), 16 - 5 * e, PAPER, PAPER, 1))
-    o.append(T(f"CYCLE {h + 1} / {N}", 1460, 330, anchor="end"))
+        o.append(circle(lerp(cx, pos[h][0], e), lerp(cy, pos[h][1], e), 21 - 6 * e, PAPER, PAPER, 1))
+    o.append(T(f"CYCLE {h + 1}/{N}", 1460, 340, anchor="end"))
     return frame(2, "KITTY", "ROTATING POT", u, o)
 
 
 # ---------------------------------------------------------------- 03 tab-shelf
 def tab_shelf(u):
     o = []
-    rows, x0, w = 6, 360, 720
+    rows, x0, w = 6, 440, 600
     ys = [70 + i * 42 for i in range(rows)]
-    widths = [300, 220, 360, 260, 330, 200]
+    widths = [260, 190, 320, 220, 280, 170]
     k = int(u * rows) % rows
     p = (u * rows) % 1
     lift = math.sin(math.pi * p)
@@ -172,15 +176,16 @@ def tab_shelf(u):
         o.append(rect(x0 + 12, y + 10, 14, 14, ASH, "none", 1.5, 0.45 if ghost else 1))
         o.append(line(x0 + 42, y + 17, x0 + 42 + widths[i], y + 17, ASH, 6, None, 0.45 if ghost else 1))
     y = ys[k]
-    dx = 150 * lift
+    dx = 110 * lift
     o.append(rect(x0 + dx, y, w, 34, PAPER, INK, 3))
     o.append(rect(x0 + dx + 12, y + 10, 14, 14, PAPER, PAPER, 1.5))
     o.append(line(x0 + dx + 42, y + 17, x0 + dx + 42 + widths[k], y + 17, PAPER, 6))
     o.append(T("SAVED", 140, 100))
-    o.append(T("SEARCHABLE", 140, 130))
-    o.append(T("KEPT", 140, 160))
+    o.append(T("SEARCH", 140, 142))
+    o.append(T("KEPT", 140, 184))
     o.append(T("OPENED", 1460, 100, anchor="end"))
-    o.append(T("ONE AT A TIME", 1460, 130, anchor="end"))
+    o.append(T("ONE AT", 1460, 142, anchor="end"))
+    o.append(T("A TIME", 1460, 184, anchor="end"))
     return frame(3, "TAB-SHELF", "SHELF", u, o)
 
 
@@ -188,16 +193,16 @@ def tab_shelf(u):
 def simple_shell(u):
     o = []
     labels = ["READ", "TOKENIZE", "PATH", "FORK", "EXECVE"]
-    under = ["$ ls -l", "ls | -l", "/bin/ls", "parent+child", "child runs"]
-    bw, bh, gap, x0, cy = 200, 70, 70, 160, 170
+    under = ["$ ls -l", "ls -l", "/bin/ls", "fork()", "exec"]
+    bw, bh, gap, x0, cy = 210, 80, 60, 140, 175
     a = int(u * 5) % 5
     p = (u * 5) % 1
     for i, lab in enumerate(labels):
         x = x0 + i * (bw + gap)
         active = i == a
         o.append(rect(x, cy - bh / 2, bw, bh, PAPER if i <= a else ASH, PAPER if active else "none", 2))
-        o.append(T(lab, x + bw / 2, cy + 8, 22, INK if active else (PAPER if i < a else ASH), "middle", 2))
-        o.append(T(under[i], x + bw / 2, cy + 78, 20, PAPER if i <= a else ASH, "middle", 1))
+        o.append(T(lab, x + bw / 2, cy + 12, 34, INK if active else (PAPER if i < a else ASH), "middle", 0))
+        o.append(T(under[i], x + bw / 2, cy + 90, 36, PAPER if i <= a else ASH, "middle", 0))
         if i < 4:
             gx1, gx2 = x + bw, x + bw + gap
             o.append(line(gx1, cy, gx2 - 8, cy, ASH, 1.5))
@@ -205,9 +210,9 @@ def simple_shell(u):
     if a < 4 and p > 0.6:
         x = x0 + a * (bw + gap) + bw
         o.append(circle(x + gap * ease((p - 0.6) / 0.4), cy, 7, PAPER, PAPER, 1))
-    o.append(T("STDIN", 160, 90))
-    o.append(T("STDOUT", 1440, 90, anchor="end"))
-    return frame(4, "SIMPLE_SHELL", "COMMAND INTERPRETER", u, o)
+    o.append(T("STDIN", 140, 84))
+    o.append(T("STDOUT", 1460, 84, anchor="end"))
+    return frame(4, "SIMPLE_SHELL", "SHELL", u, o)
 
 
 # ---------------------------------------------------------------- 05 monty
@@ -222,22 +227,22 @@ def monty(u):
     i = int(u * n) % n
     p = (u * n) % 1
     t = ease(p / 0.45)
-    o.append(T("BYTECODE", 140, 70))
+    o.append(T("BYTECODE", 140, 62))
     for j, (ins, _, _) in enumerate(_MONTY):
-        y = 104 + j * 36
+        y = 112 + j * 40
         if j == i:
-            o.append(rect(128, y - 25, 250, 33, PAPER, PAPER, 1))
-        o.append(T(ins, 144, y, 24, INK if j == i else ASH, "start", 1))
-    bx, bw, bh, by = 730, 140, 44, 318
+            o.append(rect(124, y - 31, 270, 42, PAPER, PAPER, 1))
+        o.append(T(ins, 140, y, 36, INK if j == i else ASH, "start", 0))
+    bx, bw, bh, by = 700, 160, 52, 330
     o.append(line(bx - 40, by + 8, bx + bw + 40, by + 8, PAPER, 2))
-    o.append(T("STACK", bx + bw / 2, 70, anchor="middle"))
+    o.append(T("STACK", bx + bw / 2, 62, anchor="middle"))
     _, before, after = _MONTY[i]
     op = _MONTY[i][0].split()[0]
 
     def box(idx, val, dy=0.0, a=1.0):
         y = by - (idx + 1) * (bh + 8) + dy
         o.append(rect(bx, y, bw, bh, PAPER, "none", 2, a))
-        o.append(fade(T(str(val), bx + bw / 2, y + 31, 28, PAPER, "middle", 0), a))
+        o.append(fade(T(str(val), bx + bw / 2, y + 39, 42, PAPER, "middle", 0), a))
 
     if op == "push":
         for idx, v in enumerate(before):
@@ -246,20 +251,21 @@ def monty(u):
     elif op == "add":
         for idx, v in enumerate(before[:-2]):
             box(idx, v)
-        box(len(before) - 2, before[-2], 0, 1 - t)
-        box(len(before) - 1, before[-1], 0, 1 - t)
-        box(len(after) - 1, after[-1], 0, t)
+        out_a, in_a = clamp(1 - 2 * t), clamp(2 * t - 1)
+        box(len(before) - 2, before[-2], 0, out_a)
+        box(len(before) - 1, before[-1], 0, out_a)
+        box(len(after) - 1, after[-1], 0, in_a)
     elif op == "pop":
         box(0, before[0], -70 * t, 1 - t)
     else:  # pall: the stack is unchanged, the output appears
         for idx, v in enumerate(before):
             box(idx, v)
     # output panel: pall prints the stack, top first; it clears when the loop restarts
-    o.append(T("STDOUT", 1100, 70))
+    o.append(T("STDOUT", 1100, 62))
     a_out = 0.0 if i < 3 else (t if i == 3 else 1.0)
     for r, v in enumerate([3, 2, 1]):
-        o.append(fade(T(str(v), 1100, 104 + r * 36, 24, PAPER, "start", 0), a_out))
-    o.append(T("LIFO", 1460, 330, anchor="end"))
+        o.append(fade(T(str(v), 1100, 112 + r * 40, 36, PAPER, "start", 0), a_out))
+    o.append(T("LIFO", 1460, 340, anchor="end"))
     return frame(5, "MONTY", "BYTECODE", u, o)
 
 
@@ -316,7 +322,7 @@ def sorting(u):
         fill = PAPER if i in act else "none"
         o.append(rect(x, base - h, bw, h, PAPER if (i in act or done) else ASH, fill, 1.5 if i not in act else 2))
     o.append(line(x0 - 10, base + 2, x0 + 1300, base + 2, PAPER, 2))
-    return frame(6, "SORTING_ALGORITHMS", "QUICK SORT, STEP BY STEP", u, o)
+    return frame(6, "SORTING", "QUICK SORT", u, o)
 
 
 # ---------------------------------------------------------------- 07 binary_trees
@@ -333,7 +339,7 @@ def _tree():
                 lo = node + 1
             node = (lo + hi) // 2
             depth += 1
-        pos[v] = (160 + (v - 1) * (1280 / 14), 88 + depth * 68, depth)
+        pos[v] = (160 + (v - 1) * (1280 / 14), 92 + depth * 78, depth)
     return order, pos
 
 
@@ -376,12 +382,12 @@ def binary_trees(u):
         a = clamp(shown - idx) * master
         x, y, _ = _POS[v]
         lit = cur >= 0 and (v - 1) <= cur
-        o.append(circle(x, y, 19, PAPER, PAPER if lit else INK, 2, a))
+        o.append(circle(x, y, 27, PAPER, PAPER if lit else INK, 2, a))
         if cur >= 0 and v - 1 == cur:
-            o.append(circle(x, y, 27, ASH, "none", 1.5, a))
-        o.append(fade(T(str(v), x, y + 7, 20, INK if lit else PAPER, "middle", 0), a))
-    o.append(T("INSERT" if u < build else "IN-ORDER WALK", 140, 92))
-    return frame(7, "BINARY_TREES", "BST / AVL / HEAP", u, o)
+            o.append(circle(x, y, 36, ASH, "none", 1.5, a))
+        o.append(fade(T(str(v), x, y + 11, 34, INK if lit else PAPER, "middle", 0), a))
+    o.append(T("INSERT" if u < build else "IN-ORDER", 140, 84))
+    return frame(7, "BINARY_TREES", "TREES", u, o)
 
 
 # ---------------------------------------------------------------- 08 daily haiku (private)
@@ -393,16 +399,16 @@ def haiku(u):
     master = clamp((1 - u) / 0.1) if u > 0.9 else 1.0
     c = 0
     for r, (cnt, y) in enumerate(rows):
-        span = (cnt - 1) * 64
+        span = (cnt - 1) * 76
         xs = 800 - span / 2
-        o.append(T(str(cnt), 360, y + 7, 22, ASH, "middle"))
+        o.append(T(str(cnt), 330, y + 17, 56, ASH, "middle"))
         for k in range(cnt):
-            x = xs + k * 64
+            x = xs + k * 76
             filled = c < n
-            o.append(circle(x, y, 13, ASH if not filled else PAPER, PAPER if filled else "none", 2, master if filled else 1))
+            o.append(circle(x, y, 17, ASH if not filled else PAPER, PAPER if filled else "none", 2, master if filled else 1))
             c += 1
-    o.append(T("17 SYLLABLES", 1460, 330, anchor="end"))
-    return frame(8, "DAILY HAIKU", "PRIVATE / IN DEVELOPMENT", u, o)
+    o.append(T("17 SYLLABLES", 1460, 340, anchor="end"))
+    return frame(8, "DAILY HAIKU", "PRIVATE", u, o)
 
 
 # ---------------------------------------------------------------- 09 actionextract (private)
@@ -412,12 +418,12 @@ _MARK = {2: ("DECISION", 0), 5: ("ACTION", 1), 8: ("ACTION", 2)}
 
 def actionextract(u):
     o = []
-    top, step = 84, 24
+    top, step = 84, 25
     scan = clamp(u / 0.75)
     sy = top + scan * (step * len(_TLEN))
     master = clamp((1 - u) / 0.1) if u > 0.9 else 1.0
     o.append(T("TRANSCRIPT", 140, 62))
-    o.append(T("DECISIONS + ACTIONS", 900, 62))
+    o.append(T("EXTRACTED", 900, 62))
     for i, ln in enumerate(_TLEN):
         y = top + i * step + 10
         seen = sy > y
@@ -432,18 +438,18 @@ def actionextract(u):
         a = ease((u - when - 0.02) / 0.08) * master
         if a <= 0:
             continue
-        cy = 96 + slot * 84
-        o.append(line(140 + _TLEN[i] + 14, y, 900, cy + 28, ASH, 1, "3 6", a))
-        o.append(rect(900, cy, 540, 56, PAPER, "none", 2, a))
-        o.append(fade(T(lab, 920, cy + 35, 20, PAPER, "start", 2), a))
+        cy = 92 + slot * 88
+        o.append(line(140 + _TLEN[i] + 14, y, 900, cy + 34, ASH, 1, "3 6", a))
+        o.append(rect(900, cy, 560, 68, PAPER, "none", 2, a))
+        o.append(fade(T(lab, 920, cy + 46, 34, PAPER, "start", 0), a))
         if lab == "ACTION":
-            o.append(circle(1130, cy + 28, 11, PAPER, "none", 2, a))
-            o.append(line(1158, cy + 28, 1280, cy + 28, ASH, 6, None, a))
-            o.append(rect(1340, cy + 12, 70, 32, PAPER, "none", 1.5, a))
-            o.append(line(1340, cy + 22, 1410, cy + 22, PAPER, 1.5, None, a))
+            o.append(circle(1170, cy + 34, 12, PAPER, "none", 2, a))
+            o.append(line(1200, cy + 34, 1320, cy + 34, ASH, 6, None, a))
+            o.append(rect(1360, cy + 16, 78, 36, PAPER, "none", 1.5, a))
+            o.append(line(1360, cy + 27, 1438, cy + 27, PAPER, 1.5, None, a))
         else:
-            o.append(line(1100, cy + 28, 1400, cy + 28, ASH, 6, None, a))
-    return frame(9, "ACTIONEXTRACT", "PRIVATE / TRANSCRIPT TO ACTIONS", u, o)
+            o.append(line(1170, cy + 34, 1430, cy + 34, ASH, 6, None, a))
+    return frame(9, "ACTIONEXTRACT", "PRIVATE", u, o)
 
 
 # name -> (frames, draw, file stem)

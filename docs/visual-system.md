@@ -41,10 +41,10 @@ Plotted curves (superposed sines, Lissajous), coordinate ticks and crosshairs, n
 
 Each project gets one animated "plate": a figure of how it works, drawn in the same system (ink field, 80 px grid, axis ticks, mono labels, paper-white line, no accent colour).
 
-- Canvas 1600 x 400. Corner labels: `PLATE nn / NAME` top left, a short descriptor top right, `PHASE x RAD` bottom left (the same readout as the header).
+- Canvas 1600 x 460 (content laid out on 1600 x 400 and shifted down 30 px for the corner labels). Primary labels are 42 px on the canvas, about 9 px on a phone and 23 px at README width; keep new text at or above that. Corner labels: `PLATE nn / NAME` top left, a short descriptor top right, `PHASE x RAD` bottom left (the same readout as the header).
 - Each plate is a pure function of loop position `u` in [0, 1) in `scripts/plates.py`, so every loop is seamless.
 - Private projects are labelled `PRIVATE` in the descriptor and show only how the idea works, never code or internals.
-- Build: `python scripts/render-plates.py [name ...] [--width 1200]` writes `assets/plates/<name>.gif` (16 colours, 12 fps, about 40 to 140 KB each). `--stills DIR` writes PNG stills for review. Needs ffmpeg and Node with Playwright.
+- Build: `python scripts/render-plates.py [name ...] [--width 1200]` writes `assets/plates/<name>.gif` (16 colours, 12 fps, about 55 to 155 KB each). `--stills DIR` writes PNG stills for review. Needs ffmpeg and Node with Playwright.
 - `assets/identity/social.png` (1280 x 640) is the repository social preview image; GitHub only accepts it as a manual upload in repository settings.
 
 Plates so far: 01 allowance, 02 kitty, 03 tab-shelf, 04 simple_shell, 05 monty, 06 sorting_algorithms, 07 binary_trees, 08 daily haiku, 09 actionextract.

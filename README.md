@@ -36,6 +36,12 @@ A Chrome extension that saves windows of tabs to a searchable shelf and never de
 
 A UNIX command interpreter in C: PATH lookup, fork and exec, interactive and piped modes, built-ins. Written with a teammate.
 
+**[printf](https://github.com/meta-kore/printf)**
+
+<img src="assets/plates/printf.gif" alt="Plate 10, printf: a format string is consumed token by token, with each argument used as its specifier is reached." width="100%">
+
+A from-scratch `printf` in C: conversion specifiers, flags, width, precision and size modifiers. A team project.
+
 **[monty](https://github.com/meta-kore/monty)**
 
 <img src="assets/plates/monty.gif" alt="Plate 05, monty: bytecode instructions push, add and pop values on a stack while pall prints it." width="100%">

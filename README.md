@@ -1,4 +1,3 @@
-<!-- DRAFT profile README for meta-kore/meta-kore. Placeholder copy marked TODO. Not published. -->
 <p align="center">
   <img src="assets/motion/header-loop.gif" alt="META-KORE: plotted waveforms drifting in phase on a black field" width="100%">
 </p>

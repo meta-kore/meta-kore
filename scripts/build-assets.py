@@ -119,15 +119,34 @@ def header(phase=0.0):
     return "\n".join(o)
 
 
+MK_PATHS = (
+    # M: two verticals joined by a V; K: vertical with two arms; a node marks the vertex of the M
+    f'<path d="M40,150 L40,50 L70,112 L100,50 L100,150" fill="none" stroke="{PAPER}" stroke-width="6" stroke-linejoin="miter"/>'
+    f'<path d="M122,50 L122,150 M122,100 L162,50 M122,100 L162,150" fill="none" stroke="{PAPER}" stroke-width="6"/>'
+    f'<circle cx="70" cy="112" r="5" fill="{INK}" stroke="{PAPER}" stroke-width="3"/>'
+)
+
+
 def mark():
     """MK monogram: two plotted strokes on a 200 square."""
-    s = 200
-    k = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {s} {s}" width="{s}" height="{s}" '
-         f'role="img" aria-label="MK mark"><rect width="{s}" height="{s}" fill="{INK}"/>'
-         f'<path d="M40,150 L40,50 L100,110 L100,50" fill="none" stroke="{PAPER}" stroke-width="6" stroke-linejoin="miter"/>'
-         f'<path d="M118,50 L118,150 M118,100 L160,50 M118,100 L160,150" fill="none" stroke="{PAPER}" stroke-width="6"/>'
-         f'<circle cx="100" cy="110" r="5" fill="{INK}" stroke="{PAPER}" stroke-width="3"/></svg>')
-    return k
+    sz = 200
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {sz} {sz}" width="{sz}" height="{sz}" '
+            f'role="img" aria-label="MK mark"><rect width="{sz}" height="{sz}" fill="{INK}"/>{MK_PATHS}</svg>')
+
+
+def avatar(size=500):
+    """Profile picture: the MK monogram on the ink grid. GitHub crops avatars to a circle, so the
+    monogram stays well inside the central circle."""
+    u = size / 10
+    g = []
+    for i in range(1, 10):
+        g.append(f'<line x1="{i*u:.1f}" y1="0" x2="{i*u:.1f}" y2="{size}" stroke="{RULE}" stroke-width="1"/>')
+        g.append(f'<line x1="0" y1="{i*u:.1f}" x2="{size}" y2="{i*u:.1f}" stroke="{RULE}" stroke-width="1"/>')
+    k = size / 200
+    m = f'<g transform="scale({k:.4f})">{MK_PATHS}</g>'
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {size} {size}" width="{size}" height="{size}" '
+            f'role="img" aria-label="META-KORE monogram"><rect width="{size}" height="{size}" fill="{INK}"/>'
+            + "".join(g) + m + "</svg>")
 
 
 def social(phase=1.2):
@@ -143,4 +162,5 @@ if __name__ == "__main__":
     (OUT / "header.svg").write_text(header(0.0), encoding="utf-8")
     (OUT / "mark.svg").write_text(mark(), encoding="utf-8")
     (OUT / "social.svg").write_text(social(), encoding="utf-8")
+    (OUT / "avatar.svg").write_text(avatar(), encoding="utf-8")
     print("wrote", OUT / "header.svg", OUT / "mark.svg")

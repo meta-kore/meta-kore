@@ -454,6 +454,62 @@ def actionextract(u):
     return frame(9, "ACTIONEXTRACT", "PRIVATE", u, o)
 
 
+# ---------------------------------------------------------------- 10 printf
+_PF_FMT = ["H", "i", " ", "%s", ",", " ", "%d", "%%"]  # Hi %s, %d%%  with "Jo", 50
+_PF_OUT = ["H", "i", " ", "Jo", ",", " ", "50", "%"]
+_PF_ARG = {3: 0, 6: 1}
+
+
+def printf(u):
+    o = []
+    steps = len(_PF_FMT)
+    total = steps + 4  # then hold, then clear
+    k = int(u * total) % total
+    p = (u * total) % 1
+    pitch, size = 60, 46
+    fx = 140
+    # format row: each token occupies as many cells as it has characters
+    cells, x = [], fx
+    for tok in _PF_FMT:
+        cells.append(x)
+        x += pitch * len(tok)
+    o.append(T("FORMAT", 140, 62))
+    o.append(T("OUTPUT", 140, 232))
+    o.append(T("ARGS", 1000, 62))
+    master = clamp((total - k - p) / 1.0) if k >= total - 1 else 1.0
+    cur = k if k < steps else -1
+    for i, tok in enumerate(_PF_FMT):
+        w = pitch * len(tok)
+        active = i == cur
+        if active:
+            o.append(rect(cells[i] - 6, 98, w + 4, 62, PAPER, PAPER, 1))
+        done = i < cur or k >= steps
+        col = INK if active else (PAPER if done else ASH)
+        for j, ch in enumerate(tok):
+            if ch != " ":
+                o.append(fade(T(ch, cells[i] + j * pitch + pitch / 2 - 4, 146, size, col, "middle", 0), master))
+    # output row grows as tokens are processed
+    ox = 140
+    for i, tok in enumerate(_PF_OUT):
+        shown = i < cur or (i == cur and p > 0.45) or k >= steps
+        a = master if shown else 0
+        for j, ch in enumerate(tok):
+            if ch != " " and a > 0:
+                o.append(fade(T(ch, ox + j * pitch + pitch / 2 - 4, 296, size, PAPER, "middle", 0), a))
+        ox += pitch * len(tok)
+    o.append(line(140, 312, ox, 312, ASH, 1.5, None, 1 if cur >= 0 or k >= steps else 0))
+    # arguments light up when consumed
+    for tok_i, arg_i in _PF_ARG.items():
+        lab = ['"Jo"', "50"][arg_i]
+        y = 146 + arg_i * 66
+        used = cur == tok_i
+        done = cur > tok_i or k >= steps
+        if used:
+            o.append(rect(992, y - 44, 60 * len(lab) + 8, 62, PAPER, PAPER, 1))
+        o.append(fade(T(lab, 1000, y, size, INK if used else (PAPER if done else ASH), "start", 0), master))
+    return frame(10, "PRINTF", "VARIADIC", u, o)
+
+
 # name -> (frames, draw, file stem)
 PLATES = {
     "allowance": (36, allowance),
@@ -465,4 +521,5 @@ PLATES = {
     "binary-trees": (60, binary_trees),
     "daily-haiku": (48, haiku),
     "actionextract": (48, actionextract),
+    "printf": (60, printf),
 }
